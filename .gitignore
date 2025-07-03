@@ -10,6 +10,16 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# ignore Intellij-IDEA files
+*.iml
+*.ipr
+*.iws
+*.classpath
+*.settings
+*.project
+*.idea
+.DS_Store
+
 # Package Files #
 *.jar
 *.war
