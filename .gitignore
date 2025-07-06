@@ -20,6 +20,10 @@
 *.idea
 .DS_Store
 
+# ignore target directories
+target/
+*.*~
+
 # Package Files #
 *.jar
 *.war

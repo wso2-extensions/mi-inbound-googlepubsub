@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.carbon.inbound.googlepubsub;
 
 import com.google.api.gax.core.ExecutorProvider;
@@ -42,10 +59,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     private static final Log log = LogFactory.getLog(GooglePubSubMessageConsumer.class);
-    private  String projectId;
-    private  String contentType;
-    private  String subscriptionId;
-    private  GooglePubSubSubscriptionManager subscriptionManager;
+    private String projectId;
+    private String contentType;
+    private String subscriptionId;
+    private GooglePubSubSubscriptionManager subscriptionManager;
     private Subscriber subscriber = null;
     private boolean isConsumed = false;
     private boolean isPolling = false;
@@ -64,7 +81,6 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     private int executorThreadsPerConsumers;
     private String endpoint;
 
-
     public GooglePubSubMessageConsumer(Properties properties, String name, SynapseEnvironment synapseEnvironment,
             long scanInterval, String injectingSeq, String onErrorSeq, boolean coordination, boolean sequential) {
         super(properties, name, synapseEnvironment, scanInterval, injectingSeq, onErrorSeq, coordination, sequential);
@@ -73,7 +89,7 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
         if (createSubscriptionOnConnect) {
             subscriptionManager.createSubscriptionIfNotExists();
         }
-        if(updateSubscriptionIfExists && !createSubscriptionOnConnect){
+        if (updateSubscriptionIfExists && !createSubscriptionOnConnect) {
             subscriptionManager.checkAndUpdateSubscription(ProjectSubscriptionName.of(projectId, subscriptionId));
         }
     }
@@ -102,17 +118,17 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
             try {
                 subscriber.stopAsync().awaitTerminated(1, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
-                log.info("Timed out while waiting for subscriber to terminate. Subscriber State:  " + subscriber.state());
+                log.info(
+                        "Timed out while waiting for subscriber to terminate. Subscriber State:  " + subscriber.state());
             }
-            subscriber=null;
+            subscriber = null;
             log.info("Google Pub/Sub Consumer Stopped ");
         }
     }
 
     private boolean injectMessage(String toStringUtf8, String contentType, MessageContext msgCtx) {
         AutoCloseInputStream in = new AutoCloseInputStream(new ByteArrayInputStream(toStringUtf8.getBytes()));
-        log.debug("Thread ID: " + Thread.currentThread().getId() +
-                " | Name: " + Thread.currentThread().getName());
+        log.debug("Thread ID: " + Thread.currentThread().getId() + " | Name: " + Thread.currentThread().getName());
         return this.injectMessage(in, contentType, msgCtx);
     }
 
@@ -141,10 +157,10 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
         contentType = properties.getProperty(GooglePubSubConstants.CONTENT_TYPE,
                 GooglePubSubConstants.DEFAULT_CONTENT_TYPE);
         keyFilePath = properties.getProperty(GooglePubSubConstants.KEY_FILE_PATH);
-        maxOutstandingMessageCount= Long.parseLong(
-                properties.getProperty(GooglePubSubConstants.MAX_MESSAGE_COUNT,GooglePubSubConstants.DEFAULT_MAX_MESSAGE_COUNT));
-        maxOutstandingMessageSize= Long.parseLong(
-                properties.getProperty(GooglePubSubConstants.MAX_MESSAGE_SIZE,GooglePubSubConstants.DEFAULT_MAX_MESSAGE_SIZE_IN_MB));
+        maxOutstandingMessageCount = Long.parseLong(properties.getProperty(GooglePubSubConstants.MAX_MESSAGE_COUNT,
+                GooglePubSubConstants.DEFAULT_MAX_MESSAGE_COUNT));
+        maxOutstandingMessageSize = Long.parseLong(properties.getProperty(GooglePubSubConstants.MAX_MESSAGE_SIZE,
+                GooglePubSubConstants.DEFAULT_MAX_MESSAGE_SIZE_IN_MB));
         executorThreadsPerConsumers = Integer.parseInt(
                 properties.getProperty(GooglePubSubConstants.EXECUTOR_THREADS_PER_CONSUMERS,
                         GooglePubSubConstants.DEFAULT_EXECUTOR_THREADS_PER_CONSUMERS));
@@ -156,48 +172,50 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
         updateSubscriptionIfExists = Boolean.parseBoolean(
                 properties.getProperty(GooglePubSubConstants.UPDATE_SUBSCRIPTION_IF_EXISTS, "false"));
 
-
         String topicId = properties.getProperty(GooglePubSubConstants.TOPIC_ID);
         String filter = properties.getProperty(GooglePubSubConstants.MESSAGE_FILTER, "");
         boolean enableMessageOrdering = Boolean.parseBoolean(
-                properties.getProperty(GooglePubSubConstants.ENABLE_MESSAGE_ORDERING,"false"));
+                properties.getProperty(GooglePubSubConstants.ENABLE_MESSAGE_ORDERING, "false"));
         int ackDeadlineSeconds = Integer.parseInt(properties.getProperty(GooglePubSubConstants.ACK_DEADLINE_SECONDS,
                 GooglePubSubConstants.DEFAULT_ACK_DEADLINE_SECONDS));
         String deadLetterTopic = properties.getProperty(GooglePubSubConstants.DEAD_LETTER_TOPIC);
-        int maxDeliveryAttempts = Integer.parseInt(properties.getProperty(GooglePubSubConstants.MAX_DELIVERY_ATTEMPTS,GooglePubSubConstants.DEFAULT_MAX_DELIVERY_ATTEMPTS));
+        int maxDeliveryAttempts = Integer.parseInt(properties.getProperty(GooglePubSubConstants.MAX_DELIVERY_ATTEMPTS,
+                GooglePubSubConstants.DEFAULT_MAX_DELIVERY_ATTEMPTS));
         long messageRetentionDuration = Long.parseLong(
-                properties.getProperty(GooglePubSubConstants.MESSAGE_RETENTION_DURATION, GooglePubSubConstants.DEFAULT_MESSAGE_RETENTION_DURATION));
+                properties.getProperty(GooglePubSubConstants.MESSAGE_RETENTION_DURATION,
+                        GooglePubSubConstants.DEFAULT_MESSAGE_RETENTION_DURATION));
         boolean exactlyOnceDelivery = Boolean.parseBoolean(
                 properties.getProperty(GooglePubSubConstants.EXACTLY_ONCE_DELIVERY, "false"));
-        long minBackOffDuration = Long.parseLong(properties.getProperty(GooglePubSubConstants.MIN_BACKOFF_DURATION,GooglePubSubConstants.DEFAULT_MIN_BACKOFF_DURATION));
-        long maxBackOffDuration = Long.parseLong(properties.getProperty(GooglePubSubConstants.MAX_BACKOFF_DURATION,GooglePubSubConstants.DEFAULT_MAX_BACKOFF_DURATION));
-        boolean retainAckedMessages = Boolean.parseBoolean(properties.getProperty(GooglePubSubConstants.RETAIN_ACKED_MESSAGES,"false"));
+        long minBackOffDuration = Long.parseLong(properties.getProperty(GooglePubSubConstants.MIN_BACKOFF_DURATION,
+                GooglePubSubConstants.DEFAULT_MIN_BACKOFF_DURATION));
+        long maxBackOffDuration = Long.parseLong(properties.getProperty(GooglePubSubConstants.MAX_BACKOFF_DURATION,
+                GooglePubSubConstants.DEFAULT_MAX_BACKOFF_DURATION));
+        boolean retainAckedMessages = Boolean.parseBoolean(
+                properties.getProperty(GooglePubSubConstants.RETAIN_ACKED_MESSAGES, "false"));
         String labels = properties.getProperty(GooglePubSubConstants.LABELS);
-        DeadLetterPolicy deadLetterPolicy=null;
-        if(deadLetterTopic != null){
+        DeadLetterPolicy deadLetterPolicy = null;
+        if (deadLetterTopic != null) {
             deadLetterPolicy = DeadLetterPolicy.newBuilder()
                     .setDeadLetterTopic(String.valueOf(ProjectTopicName.of(projectId, deadLetterTopic)))
                     .setMaxDeliveryAttempts(maxDeliveryAttempts).build();
         }
 
-        RetryPolicy retryPolicy = RetryPolicy.newBuilder().setMinimumBackoff(
-                        com.google.protobuf.Duration.newBuilder().setSeconds(minBackOffDuration).build())
-                .setMaximumBackoff(
-                        com.google.protobuf.Duration.newBuilder().setSeconds(maxBackOffDuration).build())
+        RetryPolicy retryPolicy = RetryPolicy.newBuilder()
+                .setMinimumBackoff(com.google.protobuf.Duration.newBuilder().setSeconds(minBackOffDuration).build())
+                .setMaximumBackoff(com.google.protobuf.Duration.newBuilder().setSeconds(maxBackOffDuration).build())
                 .build();
         try {
-            if(keyFilePath== null || keyFilePath.isEmpty()){
+            if (keyFilePath == null || keyFilePath.isEmpty()) {
                 credentials = GoogleCredentials.getApplicationDefault();
 
-            }else{
+            } else {
 
-                credentials = GoogleCredentials.fromStream(
-                        new FileInputStream(keyFilePath)
-                );
+                credentials = GoogleCredentials.fromStream(new FileInputStream(keyFilePath));
             }
             subscriptionManager = new GooglePubSubSubscriptionManager(projectId, topicId, subscriptionId, filter,
                     ackDeadlineSeconds, deadLetterPolicy, updateSubscriptionIfExists, exactlyOnceDelivery,
-                    messageRetentionDuration, retryPolicy, labels,credentials,enableMessageOrdering,retainAckedMessages);
+                    messageRetentionDuration, retryPolicy, labels, credentials, enableMessageOrdering,
+                    retainAckedMessages);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -243,7 +261,8 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
             }
             if (!this.synapseEnvironment.injectInbound(msgCtx, seq, this.sequential)) {
                 isConsumed = false;
-            }if (isRollback(msgCtx)) {
+            }
+            if (isRollback(msgCtx)) {
                 isConsumed = false;
             }
         } catch (Exception e) {
@@ -261,26 +280,27 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
             log.debug("Received message ID: " + message.getMessageId());
             log.debug("Data: " + message.getData().toStringUtf8());
             log.debug("Attributes: " + message.getAttributesMap());
-            log.debug("Ordering Key: "+ message.getOrderingKey());
-            log.debug("Publish Time: "+ message.getPublishTime());
-            log.debug("Thread ID: " + Thread.currentThread().getId() +
-                    " | Name: " + Thread.currentThread().getName() +
-                    " | Message ID: " + message.getMessageId() +
-                    " | Ordering Key: " + message.getOrderingKey());
+            log.debug("Ordering Key: " + message.getOrderingKey());
+            log.debug("Publish Time: " + message.getPublishTime());
+            log.debug("Thread ID: " + Thread.currentThread().getId() + " | Name: " + Thread.currentThread()
+                    .getName() + " | Message ID: " + message.getMessageId() + " | Ordering Key: " + message.getOrderingKey());
             MessageContext msgCtx = populateMessageContext(message);
             isConsumed = injectMessage(message.getData().toStringUtf8(), contentType, msgCtx);
             if (isConsumed) {
                 consumer.ack();
             } else {
-                log.info("Processing failed. Hence sending an nack for message: " + message.getMessageId() + "  Re-delivery Attempt: " + message.getAttributesMap().get("googclient_deliveryattempt"));
+                log.info(
+                        "Processing failed. Hence sending an nack for message: " + message.getMessageId() + "  Re-delivery Attempt: " + message.getAttributesMap()
+                                .get("googclient_deliveryattempt"));
                 consumer.nack();
             }
         };
-        FlowControlSettings flowControlSettings = FlowControlSettings.newBuilder().setMaxOutstandingElementCount(maxOutstandingMessageCount)
+        FlowControlSettings flowControlSettings = FlowControlSettings.newBuilder()
+                .setMaxOutstandingElementCount(maxOutstandingMessageCount)
                 .setMaxOutstandingRequestBytes(maxOutstandingMessageSize * 1024L * 1024L).build();
-        ExecutorProvider executorProvider = InstantiatingExecutorProvider.newBuilder().setExecutorThreadCount(executorThreadsPerConsumers)
-                .setThreadFactory(r -> new Thread(r, GooglePubSubConstants.GOOGLE_PUBSUB_CONSUMER_THREAD_NAME + threadId.getAndIncrement()))
-                .build();
+        ExecutorProvider executorProvider = InstantiatingExecutorProvider.newBuilder()
+                .setExecutorThreadCount(executorThreadsPerConsumers).setThreadFactory(r -> new Thread(r,
+                        GooglePubSubConstants.GOOGLE_PUBSUB_CONSUMER_THREAD_NAME + threadId.getAndIncrement())).build();
 
         subscriber = Subscriber.newBuilder(subscriptionName, receiver).setEndpoint(endpoint)
                 .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
@@ -294,18 +314,18 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
         }, MoreExecutors.directExecutor());
         subscriber.startAsync().awaitRunning();
         log.info("Google Pub/Sub Subscriber Started.");
-        log.info("Listening for messages on Subscription: " + subscriptionName + " Subscriber state: " + subscriber.state());
+        log.info(
+                "Listening for messages on Subscription: " + subscriptionName + " Subscriber state: " + subscriber.state());
     }
 
     private boolean isRollback(MessageContext msgCtx) {
         // check rollback property from synapse context
         Object rollbackProp = msgCtx.getProperty(GooglePubSubConstants.SET_ROLLBACK_ONLY);
         if (rollbackProp != null) {
-            return (rollbackProp instanceof Boolean && ((Boolean) rollbackProp))
-                    || (rollbackProp instanceof String && Boolean.valueOf((String) rollbackProp));
+            return (rollbackProp instanceof Boolean && ((Boolean) rollbackProp)) || (rollbackProp instanceof String && Boolean.valueOf(
+                    (String) rollbackProp));
         }//TO-DO: operational context
         return false;
     }
-
 
 }

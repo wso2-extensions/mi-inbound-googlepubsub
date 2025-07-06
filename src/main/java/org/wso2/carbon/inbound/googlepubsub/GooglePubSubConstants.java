@@ -1,7 +1,23 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.carbon.inbound.googlepubsub;
 
 public final class GooglePubSubConstants {
-    private GooglePubSubConstants() {}
 
     public static final String PROJECT_ID = "projectId";
     public static final String TOPIC_ID = "topicId";
@@ -16,10 +32,10 @@ public final class GooglePubSubConstants {
     public static final String MAX_BACKOFF_DURATION = "maxBackOffDuration";
     public static final String LABELS = "labels";
     public static final String UPDATE_SUBSCRIPTION_IF_EXISTS = "updateSubscriptionIfExists";
-    public static final String ENABLE_MESSAGE_ORDERING ="enableMessageOrdering";
-    public static final String KEY_FILE_PATH ="keyFilePath";
-    public static final String MAX_MESSAGE_COUNT ="maxOutstandingMessageCount";
-    public static final String MAX_MESSAGE_SIZE ="maxOutstandingMessageSize";
+    public static final String ENABLE_MESSAGE_ORDERING = "enableMessageOrdering";
+    public static final String KEY_FILE_PATH = "keyFilePath";
+    public static final String MAX_MESSAGE_COUNT = "maxOutstandingMessageCount";
+    public static final String MAX_MESSAGE_SIZE = "maxOutstandingMessageSize";
     public static final String MESSAGE_RETENTION_DURATION = "messageRetentionDuration";
     public static final String EXACTLY_ONCE_DELIVERY = "exactlyOnceDelivery";
     public static final String EXECUTOR_THREADS_PER_CONSUMERS = "executorThreadsPerConsumers";
@@ -28,7 +44,6 @@ public final class GooglePubSubConstants {
     public static final String RETAIN_ACKED_MESSAGES = "retainAckedMessages";
     public static final String SET_ROLLBACK_ONLY = "SET_ROLLBACK_ONLY";
     public static final String GOOGLE_PUBSUB_CONSUMER_THREAD_NAME = "googlepubsub-subscriber-pool-";
-
 
     /**
      * Record Details
