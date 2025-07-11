@@ -128,73 +128,72 @@
         ]
       }
     },
-
-    {
-            "type": "attributeGroup",
-            "value": {
-              "groupName": "Google PubSub Basic",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "endpoint",
-                    "displayName": "Endpoint",
-                    "inputType": "string",
-                    "defaultValue": "pubsub.googleapis.com:443",
-                    "required": true,
-                    "helpTip": "The endpoint details. Should be in format host:port."
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "projectId",
-                    "displayName": "Project Id",
-                    "inputType": "string",
-                    "required": true,
-                    "helpTip": "The project id"
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "subscriptionId",
-                    "displayName": "Subscription Id",
-                    "inputType": "string",
-                    "required": true,
-                    "helpTip": "The subscription id"
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "keyFilePath",
-                    "displayName": "Service Account Key File Path",
-                    "inputType": "string",
-                    "required": false,
-                    "helpTip": "The service account key file path to authenticate subscriber"
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "contentType",
-                    "displayName": "Content Type",
-                    "inputType": "string",
-                    "defaultValue": "application/json",
-                    "required": false,
-                    "helpTip": "The content type of the messages"
-                  }
-                }
-              ]
-            }
-          },
     {
       "type": "attributeGroup",
-      "value" : {
+      "value": {
+        "groupName": "Google PubSub Basic",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "endpoint",
+              "displayName": "Endpoint",
+              "inputType": "string",
+              "defaultValue": "pubsub.googleapis.com:443",
+              "required": true,
+              "helpTip": "The endpoint details. Should be in format host:port."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "projectId",
+              "displayName": "Project Id",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The project id"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "subscriptionId",
+              "displayName": "Subscription Id",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The subscription id"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "keyFilePath",
+              "displayName": "Service Account Key File Path",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "The service account key file path to authenticate subscriber"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "contentType",
+              "displayName": "Content Type",
+              "inputType": "string",
+              "defaultValue": "application/json",
+              "required": false,
+              "helpTip": "The content type of the messages"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
         "groupName": "Advance Configuration",
         "isCollapsed": true,
-        "elements" : [
+        "elements": [
           {
             "type": "attribute",
             "value": {
@@ -318,7 +317,6 @@
                     "helpTip": "When enabled, messages tagged with the same ordering key will be received in the order they are published."
                   }
                 },
-
                 {
                   "type": "attribute",
                   "value": {
@@ -386,21 +384,23 @@
               ]
             }
           },
-          {"type": "attributeGroup",
-            "value" : {
+          {
+            "type": "attributeGroup",
+            "value": {
               "groupName": "Flow Control Configuration",
               "isCollapsed": true,
-              "elements" :[{
-                "type": "attribute",
-                "value": {
-                  "name": "maxOutstandingMessageCount",
-                  "displayName": "Max Outstanding Message Count ",
-                  "inputType": "string",
-                  "defaultValue": "1000",
-                  "required": false,
-                  "helpTip": "The number of messages the client receives before pausing delivery"
-                }
-              },
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "maxOutstandingMessageCount",
+                    "displayName": "Max Outstanding Message Count ",
+                    "inputType": "string",
+                    "defaultValue": "1000",
+                    "required": false,
+                    "helpTip": "The number of messages the client receives before pausing delivery"
+                  }
+                },
                 {
                   "type": "attribute",
                   "value": {
@@ -411,9 +411,12 @@
                     "required": false,
                     "helpTip": "The total size of buffered messages (in MB) to avoid memory overuse"
                   }
-                }]}}
+                }
+              ]
+            }
+          }
         ]
       }
     }
-
-]}
+  ]
+}
