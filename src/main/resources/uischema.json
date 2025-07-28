@@ -151,7 +151,7 @@
               "displayName": "Project Id",
               "inputType": "string",
               "required": true,
-              "helpTip": "The project id"
+              "helpTip": "The unique identifier of your Google Cloud project that contains the Pub/Sub resources. Eg:my-gcp-project-123456"
             }
           },
           {
@@ -161,7 +161,7 @@
               "displayName": "Subscription Id",
               "inputType": "string",
               "required": true,
-              "helpTip": "The subscription id"
+              "helpTip": "The ID of the Pub/Sub subscription you want to connect to. Eg:my-subscription-name"
             }
           },
           {
@@ -260,7 +260,7 @@
                     "displayName": "Topic Id",
                     "required": false,
                     "inputType": "string",
-                    "helpTip": "The topic id"
+                    "helpTip": "The ID of the Pub/Sub topic to connect to. Required when creating or updating a subscription. Eg: my-topic-name"
                   }
                 },
                 {
@@ -378,7 +378,7 @@
                     "displayName": "Message Filter",
                     "inputType": "string",
                     "required": false,
-                    "helpTip": "Message filter to be added to subscription. Use a valid filter syntax."
+                    "helpTip": "Message filter to be added to subscription. Use a valid filter syntax. Eg: attributes.domain=\\\"payments\\\" AND attributes.env=\\\"prod\\\""
                   }
                 }
               ]

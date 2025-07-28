@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
- *   WSO2 Inc. licenses this file to you under the Apache License,
- *   Version 2.0 (the "License"); you may not use this file except
- *   in compliance with the License.
- *   You may obtain a copy of the License at
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -44,11 +44,12 @@ public final class GooglePubSubConstants {
     public static final String RETAIN_ACKED_MESSAGES = "retainAckedMessages";
     public static final String SET_ROLLBACK_ONLY = "SET_ROLLBACK_ONLY";
     public static final String GOOGLE_PUBSUB_CONSUMER_THREAD_NAME = "googlepubsub-subscriber-pool-";
+    public static final String GOOGLE_CLIENT_DELIVERY_ATTEMPT ="googclient_deliveryattempt";
 
     /**
      * Record Details
      */
-    public static final String MESSAGE_ID = "MessageID";
+    public static final String MESSAGE_ID = "MessageId";
     public static final String MESSAGE_BODY = "MessageBody";
     public static final String MESSAGE_PUBLISHED_TIME = "MessagePublishTime";
     public static final String MESSAGE_ORDERING_KEY = "MessageOrderingKey";
@@ -63,7 +64,6 @@ public final class GooglePubSubConstants {
     public static final String PROP_DLP_DELIVERY_ATTEMPTS = "dead_letter_policy.max_delivery_attempts";
     public static final String PROP_RP_MIN_BACKOFF = "minimum_backoff";
     public static final String PROP_RP_MAX_BACKOFF = "maximum_backoff";
-    public static final String PROP_LABELS = "labels";
     /**
      * Default Values
      */

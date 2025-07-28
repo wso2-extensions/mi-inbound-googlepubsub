@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
- *   WSO2 Inc. licenses this file to you under the Apache License,
- *   Version 2.0 (the "License"); you may not use this file except
- *   in compliance with the License.
- *   You may obtain a copy of the License at
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -48,7 +48,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +57,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
+
     private static final Log log = LogFactory.getLog(GooglePubSubMessageConsumer.class);
     private String projectId;
     private String contentType;
@@ -73,7 +73,7 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     private static final AtomicInteger threadId = new AtomicInteger(1);
 
     private int concurrentConsumers;
-    private String keyFilePath;
+
     private GoogleCredentials credentials;
     private boolean createSubscriptionOnConnect;
     private boolean updateSubscriptionIfExists;
@@ -82,7 +82,9 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     private String endpoint;
 
     public GooglePubSubMessageConsumer(Properties properties, String name, SynapseEnvironment synapseEnvironment,
-            long scanInterval, String injectingSeq, String onErrorSeq, boolean coordination, boolean sequential) {
+                                       long scanInterval, String injectingSeq, String onErrorSeq, boolean coordination,
+                                       boolean sequential) throws Exception {
+
         super(properties, name, synapseEnvironment, scanInterval, injectingSeq, onErrorSeq, coordination, sequential);
         log.info("Initializing GooglePubSubMessageConsumer");
         loadConfiguration(properties);
@@ -96,16 +98,21 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
 
     @Override
     public Object poll() {
-        log.debug("Polling for messages from Google Pub/Sub...");
+
+        if (log.isDebugEnabled()) {
+            log.debug("Polling for messages from Google Pub/Sub...");
+        }
         if (subscriber != null) {
             isPolling = subscriber.isRunning();
-            if (subscriber.state().equals("FAILED")) {
+            if (subscriber.state() == Subscriber.State.FAILED) {
                 log.info("Subscriber fails.. State: " + subscriber.state());
                 subscriber = null;
             }
         }
         if (!isPolling && subscriber == null) {
-            log.debug("Starting to consume messages from Google Pub/Sub");
+            if (log.isDebugEnabled()) {
+                log.debug("Starting to consume messages from Google Pub/Sub");
+            }
             receiveMessages(projectId, subscriptionId);
         }
         return null;
@@ -113,13 +120,15 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
 
     @Override
     public void destroy() {
+
         log.info("Stopping the Google Pub/Sub Consumer");
         if (subscriber != null) {
             try {
                 subscriber.stopAsync().awaitTerminated(1, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
                 log.info(
-                        "Timed out while waiting for subscriber to terminate. Subscriber State:  " + subscriber.state());
+                        "Timed out while waiting for subscriber to terminate. Subscriber State:  " +
+                                subscriber.state());
             }
             subscriber = null;
             log.info("Google Pub/Sub Consumer Stopped ");
@@ -127,12 +136,13 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     }
 
     private boolean injectMessage(String toStringUtf8, String contentType, MessageContext msgCtx) {
+
         AutoCloseInputStream in = new AutoCloseInputStream(new ByteArrayInputStream(toStringUtf8.getBytes()));
-        log.debug("Thread ID: " + Thread.currentThread().getId() + " | Name: " + Thread.currentThread().getName());
         return this.injectMessage(in, contentType, msgCtx);
     }
 
     private MessageContext populateMessageContext(PubsubMessage message) {
+
         MessageContext msgCtx = createMessageContext();
         msgCtx.setProperty(GooglePubSubConstants.MESSAGE_ID, message.getMessageId());
         msgCtx.setProperty(GooglePubSubConstants.MESSAGE_BODY, message.getData());
@@ -144,6 +154,7 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     }
 
     private MessageContext createMessageContext() {
+
         MessageContext msgCtx = this.synapseEnvironment.createMessageContext();
         org.apache.axis2.context.MessageContext axis2MsgCtx = ((Axis2MessageContext) msgCtx).getAxis2MessageContext();
         axis2MsgCtx.setServerSide(true);
@@ -152,11 +163,12 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     }
 
     private void loadConfiguration(Properties properties) {
+
         projectId = properties.getProperty(GooglePubSubConstants.PROJECT_ID);
         subscriptionId = properties.getProperty(GooglePubSubConstants.SUBSCRIPTION_ID);
         contentType = properties.getProperty(GooglePubSubConstants.CONTENT_TYPE,
                 GooglePubSubConstants.DEFAULT_CONTENT_TYPE);
-        keyFilePath = properties.getProperty(GooglePubSubConstants.KEY_FILE_PATH);
+        String keyFilePath = properties.getProperty(GooglePubSubConstants.KEY_FILE_PATH);
         maxOutstandingMessageCount = Long.parseLong(properties.getProperty(GooglePubSubConstants.MAX_MESSAGE_COUNT,
                 GooglePubSubConstants.DEFAULT_MAX_MESSAGE_COUNT));
         maxOutstandingMessageSize = Long.parseLong(properties.getProperty(GooglePubSubConstants.MAX_MESSAGE_SIZE,
@@ -216,19 +228,22 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
                     ackDeadlineSeconds, deadLetterPolicy, updateSubscriptionIfExists, exactlyOnceDelivery,
                     messageRetentionDuration, retryPolicy, labels, credentials, enableMessageOrdering,
                     retainAckedMessages);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("Error setting google credentials. " + e);
             throw new RuntimeException(e);
         }
     }
 
     private boolean injectMessage(InputStream in, String contentType, MessageContext msgCtx) {
+
         boolean isConsumed = true;
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Processed Custom inbound EP Message of Content-type : " + contentType + " for " + name);
             }
 
-            org.apache.axis2.context.MessageContext axis2MsgCtx = ((Axis2MessageContext) msgCtx).getAxis2MessageContext();
+            org.apache.axis2.context.MessageContext axis2MsgCtx =
+                    ((Axis2MessageContext) msgCtx).getAxis2MessageContext();
             Object builder;
             if (StringUtils.isEmpty(contentType)) {
                 log.warn("Unable to determine content type for message, setting to application/json for " + name);
@@ -267,7 +282,8 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
             }
         } catch (Exception e) {
             log.error(
-                    "Error while processing the Google Pub/Sub inbound endpoint Message and the message should be in the format of " + contentType,
+                    "Error while processing the Google Pub/Sub inbound endpoint Message and the message should be in the format of " +
+                            contentType,
                     e);
             isConsumed = false;
         }
@@ -275,23 +291,28 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
     }
 
     public void receiveMessages(String projectId, String subscriptionId) {
+
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
         MessageReceiver receiver = (PubsubMessage message, AckReplyConsumer consumer) -> {
-            log.debug("Received message ID: " + message.getMessageId());
-            log.debug("Data: " + message.getData().toStringUtf8());
-            log.debug("Attributes: " + message.getAttributesMap());
-            log.debug("Ordering Key: " + message.getOrderingKey());
-            log.debug("Publish Time: " + message.getPublishTime());
-            log.debug("Thread ID: " + Thread.currentThread().getId() + " | Name: " + Thread.currentThread()
-                    .getName() + " | Message ID: " + message.getMessageId() + " | Ordering Key: " + message.getOrderingKey());
+            if (log.isDebugEnabled()) {
+                log.debug("Received message ID: " + message.getMessageId());
+                log.debug("Data: " + message.getData().toStringUtf8());
+                log.debug("Attributes: " + message.getAttributesMap());
+                log.debug("Ordering Key: " + message.getOrderingKey());
+                log.debug("Publish Time: " + message.getPublishTime());
+                log.debug("Thread ID: " + Thread.currentThread().getId() + " | Name: " + Thread.currentThread()
+                        .getName() + " | Message ID: " + message.getMessageId() + " | Ordering Key: " +
+                        message.getOrderingKey());
+            }
             MessageContext msgCtx = populateMessageContext(message);
             isConsumed = injectMessage(message.getData().toStringUtf8(), contentType, msgCtx);
             if (isConsumed) {
                 consumer.ack();
             } else {
-                log.info(
-                        "Processing failed. Hence sending an nack for message: " + message.getMessageId() + "  Re-delivery Attempt: " + message.getAttributesMap()
-                                .get("googclient_deliveryattempt"));
+                log.error(
+                        "Processing failed. Hence sending an nack for message: " + message.getMessageId() +
+                                "  Re-delivery Attempt: " + message.getAttributesMap()
+                                .get(GooglePubSubConstants.GOOGLE_CLIENT_DELIVERY_ATTEMPT));
                 consumer.nack();
             }
         };
@@ -309,22 +330,24 @@ public class GooglePubSubMessageConsumer extends GenericPollingConsumer {
 
         subscriber.addListener(new Subscriber.Listener() {
             public void failed(Subscriber.State from, Throwable failure) {
+
                 log.info("Unrecoverable subscriber failure:" + failure.getStackTrace());
             }
         }, MoreExecutors.directExecutor());
         subscriber.startAsync().awaitRunning();
-        log.info("Google Pub/Sub Subscriber Started.");
-        log.info(
-                "Listening for messages on Subscription: " + subscriptionName + " Subscriber state: " + subscriber.state());
+        log.info("Google Pub/Sub Subscriber Started. Listening for messages on Subscription: " + subscriptionName +
+                " Subscriber state: " +
+                subscriber.state());
     }
 
     private boolean isRollback(MessageContext msgCtx) {
         // check rollback property from synapse context
         Object rollbackProp = msgCtx.getProperty(GooglePubSubConstants.SET_ROLLBACK_ONLY);
         if (rollbackProp != null) {
-            return (rollbackProp instanceof Boolean && ((Boolean) rollbackProp)) || (rollbackProp instanceof String && Boolean.valueOf(
-                    (String) rollbackProp));
-        }//TO-DO: operational context
+            return (rollbackProp instanceof Boolean && ((Boolean) rollbackProp)) ||
+                    (rollbackProp instanceof String && Boolean.valueOf(
+                            (String) rollbackProp));
+        }
         return false;
     }
 

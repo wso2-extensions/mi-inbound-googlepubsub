@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
- *   WSO2 Inc. licenses this file to you under the Apache License,
- *   Version 2.0 (the "License"); you may not use this file except
- *   in compliance with the License.
- *   You may obtain a copy of the License at
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class GooglePubSubSubscriptionManager {
+
     private static final Log log = LogFactory.getLog(GooglePubSubSubscriptionManager.class);
     private final String projectId;
     private final String topicId;
@@ -52,15 +53,19 @@ public class GooglePubSubSubscriptionManager {
     private final long messageRetentionDuration;
     private final RetryPolicy retryPolicy;
     private final Map<String, String> labels;
-    private boolean enableMessageOrdering;
-    private boolean retainAckedMessages;
-    private SubscriptionAdminSettings adminSettings;
+    private final boolean enableMessageOrdering;
+    private final boolean retainAckedMessages;
+    private final SubscriptionAdminSettings adminSettings;
 
     public GooglePubSubSubscriptionManager(String projectId, String topicId, String subscriptionId, String filter,
-            int ackDeadlineSeconds, DeadLetterPolicy deadLetterPolicy, boolean updateSubscriptionIfExists,
-            boolean exactlyOnceDelivery, long messageRetentionDuration, RetryPolicy retryPolicy, String labelsList,
-            GoogleCredentials credentials, boolean enableMessageOrdering, boolean retainAckedMessages)
+                                           int ackDeadlineSeconds, DeadLetterPolicy deadLetterPolicy,
+                                           boolean updateSubscriptionIfExists,
+                                           boolean exactlyOnceDelivery, long messageRetentionDuration,
+                                           RetryPolicy retryPolicy, String labelsList,
+                                           GoogleCredentials credentials, boolean enableMessageOrdering,
+                                           boolean retainAckedMessages)
             throws IOException {
+
         this.projectId = projectId;
         this.topicId = topicId;
         this.subscriptionId = subscriptionId;
@@ -78,7 +83,8 @@ public class GooglePubSubSubscriptionManager {
                 .setCredentialsProvider(FixedCredentialsProvider.create(credentials)).build();
     }
 
-    public void createSubscriptionIfNotExists() {
+    public void createSubscriptionIfNotExists() throws Exception {
+
         ProjectTopicName topicName = ProjectTopicName.of(projectId, topicId);
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
         try (SubscriptionAdminClient client = SubscriptionAdminClient.create(adminSettings)) {
@@ -94,35 +100,47 @@ public class GooglePubSubSubscriptionManager {
 
             client.createSubscription(subscriptionBuilder.build());
             log.info(
-                    "Subscription " + subscriptionId + " Created. Subscription Details: " + subscriptionBuilder.getAllFields());
+                    "Subscription " + subscriptionId + " Created. Subscription Details: " +
+                            subscriptionBuilder.getAllFields());
         } catch (AlreadyExistsException e) {
             log.warn("Subscription already exists: " + subscriptionId);
             checkAndUpdateSubscription(subscriptionName);
         } catch (PermissionDeniedException e) {
             log.error("You don't have permission to create subscription " + e);
+            throw new Exception(e);
         } catch (Exception e) {
             log.error("Error on creating subscription " + e);
+            throw new Exception(e);
         }
     }
 
-    public void checkAndUpdateSubscription(ProjectSubscriptionName subscriptionName) {
+    public void checkAndUpdateSubscription(ProjectSubscriptionName subscriptionName) throws Exception {
+
         try (SubscriptionAdminClient client = SubscriptionAdminClient.create(adminSettings)) {
             Subscription existingSubscription = client.getSubscription(subscriptionName);
             if (existingSubscription.getState() == Subscription.State.RESOURCE_ERROR) {
                 deleteSubscription(projectId, subscriptionId);
                 createSubscriptionIfNotExists();
-            }
-            if (checkStaticAndUpdate(existingSubscription, subscriptionName))
                 return;
+            }
+            if (checkStaticAndUpdate(existingSubscription, subscriptionName)) return;
             checkAndApplyDynamicUpdates(existingSubscription, subscriptionName);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Error creating SubscriptionAdminClient. " + e);
+            throw new IOException(e);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new Exception(e);
         }
     }
+    /**  In Google Pub/Sub you cannot have multiple subscriptions with same subscription id.
+     * During subscription creation process,
+     * if encounters a subscription exists for the given subscription id,
+     * Pub/Sub properties that cannot be updated will be handled by this method,
+     * if updateSubscriptionIfExists is set to true,
+     * To modify the subscription with the properties that cannot be updated(Message ordering and filtering),
+     * the subscription will be deleted and created if the topic matches**/
+    private boolean checkStaticAndUpdate(Subscription sub, ProjectSubscriptionName name) throws Exception {
 
-    private boolean checkStaticAndUpdate(Subscription sub, ProjectSubscriptionName name) {
         if (!Objects.equals(sub.getTopic(), ProjectTopicName.format(name.getProject(), topicId))) {
             log.error("Same subscription name exists for a different Topic: " + sub.getTopic());
             throw new IllegalStateException("Same subscription name exists for a different Topic.");
@@ -142,6 +160,7 @@ public class GooglePubSubSubscriptionManager {
     }
 
     public void deleteSubscription(String projectId, String subscriptionId) {
+
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
         try (SubscriptionAdminClient subscriptionAdminClient = SubscriptionAdminClient.create(adminSettings)) {
             subscriptionAdminClient.deleteSubscription(subscriptionName);
@@ -150,7 +169,12 @@ public class GooglePubSubSubscriptionManager {
         }
     }
 
+    /** The properties of the subscription that can be updated, is handled by this method.
+     * If the configured value for a given subscription property does not match with the existing subscription property,
+     * it will get updated with the new configuration if updateSubscriptionIfExists is set to true.
+     * **/
     private void checkAndApplyDynamicUpdates(Subscription sub, ProjectSubscriptionName name) throws IOException {
+
         Subscription.Builder builder = Subscription.newBuilder().setName(name.toString());
         boolean updated = false;
         FieldMask.Builder updateMask = FieldMask.newBuilder();
@@ -216,7 +240,8 @@ public class GooglePubSubSubscriptionManager {
     }
 
     private <T> boolean compareAndSet(T actual, T expected, String fieldName, java.util.function.Consumer<T> setter,
-            FieldMask.Builder mask) {
+                                      FieldMask.Builder mask) {
+
         if (!Objects.equals(actual, expected)) {
             log.warn(String.format(
                     "Subscription Property mismatch. For current subscription, field '%s' value is  [%s] but new value is [%s]",
@@ -229,6 +254,7 @@ public class GooglePubSubSubscriptionManager {
     }
 
     public Map<String, String> parseLabels(String input) {
+
         Map<String, String> labelMap = new HashMap<>();
         if (input == null || input.isEmpty()) {
             return labelMap;
