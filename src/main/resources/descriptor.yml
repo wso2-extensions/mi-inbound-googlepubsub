@@ -1,0 +1,12 @@
+dependencies:
+  - groupId: "org.wso2.integration.inbound"
+    artifactId: "mi-inbound-googlepubsub"
+    version: "${googlepubsub.inbound.version}"
+
+repositories:
+  - id: "central"
+    url: "https://repo.maven.apache.org/maven2/"
+  - id: "wso2-nexus"
+    url: "https://maven.wso2.org/nexus/content/groups/wso2-public/"
+  - id: "wso2-maven2-repository"
+    url: "scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/"

@@ -1,0 +1,422 @@
+{
+  "id": "org.wso2.carbon.inbound.googlepubsub.GooglePubSubMessageConsumer",
+  "name": "googlePubSubInbound",
+  "type": "event-integration",
+  "title": "Google PubSub Inbound Endpoint",
+  "help": "Configure Google Pub/Sub Consumer Settings",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Generic",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "name",
+              "displayName": "Event Integration Name",
+              "inputType": "string",
+              "required": "true",
+              "helpTip": "Unique identifier for the Google pubsub event integration."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "class",
+              "displayName": "Class Name",
+              "inputType": "string",
+              "required": "true",
+              "hidden": true,
+              "defaultValue": "org.wso2.carbon.inbound.googlepubsub.GooglePubSubMessageConsumer"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "generateSequences",
+              "displayName": "Automatically generate sequences",
+              "inputType": "checkbox",
+              "defaultValue": true
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "sequence",
+              "displayName": "Injecting Sequence Name",
+              "inputType": "keyOrExpression",
+              "keyType": "sequence",
+              "required": "true",
+              "enableCondition": [
+                {
+                  "generateSequences": false
+                }
+              ],
+              "helpTip": "Sequence to inject the Salesforce pubsub message"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "onError",
+              "displayName": "Error Sequence Name",
+              "inputType": "keyOrExpression",
+              "keyType": "sequence",
+              "required": "true",
+              "enableCondition": [
+                {
+                  "generateSequences": false
+                }
+              ],
+              "helpTip": "Error sequence to invoke on fault"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "suspend",
+              "displayName": "Suspend Inbound",
+              "inputType": "boolean",
+              "defaultValue": false,
+              "hidden": true,
+              "required": "false",
+              "helpTip": "Suspend Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Inbound Functional",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "interval",
+              "displayName": "Polling interval",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The polling interval for the Google pub/sub inbound endpoint in milliseconds.",
+              "defaultValue": "100"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "sequential",
+              "displayName": "Execute sequentially",
+              "inputType": "boolean",
+              "defaultValue": true,
+              "required": "false",
+              "helpTip": "The behaviour when executing the given sequence."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "coordination",
+              "displayName": "Coordination",
+              "inputType": "boolean",
+              "defaultValue": true,
+              "required": "false",
+              "helpTip": "In a clustered setup, this will run the inbound only in a single worker node."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Google PubSub Basic",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "endpoint",
+              "displayName": "Endpoint",
+              "inputType": "string",
+              "defaultValue": "pubsub.googleapis.com:443",
+              "required": true,
+              "helpTip": "The endpoint details. Should be in format host:port."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "projectId",
+              "displayName": "Project Id",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The unique identifier of your Google Cloud project that contains the Pub/Sub resources. Eg:my-gcp-project-123456"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "subscriptionId",
+              "displayName": "Subscription Id",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The ID of the Pub/Sub subscription you want to connect to. Eg:my-subscription-name"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "keyFilePath",
+              "displayName": "Service Account Key File Path",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "The service account key file path to authenticate subscriber"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "contentType",
+              "displayName": "Content Type",
+              "inputType": "string",
+              "defaultValue": "application/json",
+              "required": false,
+              "helpTip": "The content type of the messages"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Advance Configuration",
+        "isCollapsed": true,
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "concurrentConsumers",
+              "displayName": "Parallel Consumer Count",
+              "inputType": "string",
+              "defaultValue": "1",
+              "required": false,
+              "helpTip": "The number of consumers need to pull messages"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "executorThreadsPerConsumers",
+              "displayName": "Thread Count Per Consumer",
+              "inputType": "string",
+              "defaultValue": "5",
+              "required": false,
+              "helpTip": "The number of threads per consumer, this pool is used by the consumer to process messages,"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "createSubscriptionOnConnect",
+              "displayName": "Create Subscription on Connect",
+              "inputType": "checkbox",
+              "defaultValue": "false",
+              "required": false,
+              "helpTip": "This specifies if you want MI to create the subscription"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "updateSubscriptionIfExists",
+              "displayName": "Update Subscription If Exists",
+              "inputType": "checkbox",
+              "defaultValue": "false",
+              "required": false,
+              "helpTip": "This specifies if you want MI to update the subscription if exists"
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Subscription Creation/Update Details",
+              "isCollapsed": true,
+              "enableCondition": [
+                "OR",
+                {
+                  "createSubscriptionOnConnect": true
+                },
+                {
+                  "updateSubscriptionIfExists": true
+                }
+              ],
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "topicId",
+                    "displayName": "Topic Id",
+                    "required": false,
+                    "inputType": "string",
+                    "helpTip": "The ID of the Pub/Sub topic to connect to. Required when creating or updating a subscription. Eg: my-topic-name"
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "ackDeadlineSeconds",
+                    "displayName": "Acknowledgement Deadline (seconds)",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": "How long Pub/Sub waits for the subscriber to acknowledge receipt before resending the message. Deadline time is from 10 seconds to 600 seconds"
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "messageRetentionDuration",
+                    "displayName": "Message Retention Duration (minutes)",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "Retain unacknowledged messages for a specified duration. If retain acknowledged messages is enabled, acknowledged messages are retained for the same duration. Duration is from 10 minutes to 31 days"
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "retainAckedMessages",
+                    "displayName": "Retain Acked Messages",
+                    "inputType": "checkbox",
+                    "defaultValue": "false",
+                    "required": false,
+                    "helpTip": "When enabled, acknowledged messages are retained for the message retention duration specified."
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "exactlyOnceDelivery",
+                    "displayName": "Enable Exactly Once Delivery",
+                    "inputType": "checkbox",
+                    "defaultValue": "false",
+                    "required": false,
+                    "helpTip": "When enabled, messages sent to the subscription are guaranteed not to be resent before the message's acknowledgement deadline expires."
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "enableMessageOrdering",
+                    "displayName": "Enable Message Ordering",
+                    "inputType": "checkbox",
+                    "defaultValue": "false",
+                    "required": false,
+                    "helpTip": "When enabled, messages tagged with the same ordering key will be received in the order they are published."
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "deadLetterTopic",
+                    "displayName": "Dead Letter Topic",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "Dead letter topic for subscription."
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "maxDeliveryAttempts",
+                    "displayName": "Max Delivery Attempts",
+                    "inputType": "string",
+                    "defaultValue": "5",
+                    "required": false,
+                    "helpTip": "Max delivery attempts before moving it to dead letter topic."
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "minBackOffDuration",
+                    "displayName": "Min BackOff Duration (seconds)",
+                    "inputType": "string",
+                    "defaultValue": "10",
+                    "required": false,
+                    "helpTip": "Initial delay before first redelivery attempt"
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "maxBackOffDuration",
+                    "displayName": "Max BackOff Duration (seconds)",
+                    "inputType": "string",
+                    "defaultValue": "600",
+                    "required": false,
+                    "helpTip": "Upper limit of retry delay; Pub/Sub won’t wait longer than this."
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "labels",
+                    "displayName": "Labels",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": "Labels for the subscription. Should be in the format key1=value1,key2=value2"
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "messageFilter",
+                    "displayName": "Message Filter",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": "Message filter to be added to subscription. Use a valid filter syntax. Eg: attributes.domain=\\\"payments\\\" AND attributes.env=\\\"prod\\\""
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Flow Control Configuration",
+              "isCollapsed": true,
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "maxOutstandingMessageCount",
+                    "displayName": "Max Outstanding Message Count ",
+                    "inputType": "string",
+                    "defaultValue": "1000",
+                    "required": false,
+                    "helpTip": "The number of messages the client receives before pausing delivery"
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "maxOutstandingMessageSize",
+                    "displayName": "Max Outstanding Message Size (MB)",
+                    "inputType": "string",
+                    "defaultValue": "100",
+                    "required": false,
+                    "helpTip": "The total size of buffered messages (in MB) to avoid memory overuse"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
