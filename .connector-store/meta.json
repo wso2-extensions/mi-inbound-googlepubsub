@@ -7,7 +7,7 @@
     "rank": 15,
     "type": "Inbound",
     "category": "Developer Tools",
-    "documentationUrl": "",
+    "documentationUrl": "https://mi.docs.wso2.com/en/latest/reference/connectors/google-pubsub-inbound/google-pubsub-inbound-endpoint-reference/",
     "description": "Inbuilt Google Pub/Sub Event Listener",
     "status": "Active",
     "labels": [
